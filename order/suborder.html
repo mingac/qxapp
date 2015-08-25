@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="en">
+
+	<head>
+		<meta charset="utf-8">
+		<title>填写订单</title>
+		<meta name="apple-mobile-web-app-capable" content="yes">
+		<meta name="format-detection" content="telephone=no, email=no">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+		<link rel="stylesheet" type="text/css" href="../css/qxv3.css" />
+		<link rel="stylesheet" type="text/css" href="../css/dialog.css" />
+		<script src="../js/jquery.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../js/angular.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../js/angular-touch.js" type="text/javascript" charset="utf-8"></script>
+		<script type="text/javascript">
+			var access_token = "fb735d44f4b8572da52648564312f17a05339490-1480";
+		</script>
+	</head>
+
+	<body class="navbtm" ng-app="suborderApp" ng-controller="suborderController">
+		<div id="header"><a href="" class="header_back"><i class="qx qx-back"></i></a>
+			<span class="header_title">提交订单</span>
+		</div>
+		<!-- 已选商品 -->
+		<input type="hidden" id="cartprolist" value="8057,8051" />
+		<!--商品列表-->
+		<div class="cart havepro">
+			<cartprolist plist="orderplist" pronum="{{orderplist.length}}"></cartprolist>
+			<!-- 信息 -->
+			<div id="cart_act" class="c">
+				<div class="cart_price fr pw" ng-show="oderprice">共计：<span ng-bind="oderprice|currency:'￥'"></span>
+				</div>
+			</div>
+		</div>
+		<!-- 配送方式 -->
+		<div class="drawerbox_outer openout">
+			<div class="dbout_header c">
+				<span class="fl dboh_title">配送方式</span>
+			</div>
+			<div class="dbout_cnt">
+				<div class="drawerbox_inner c" ng-class="{openinner:delivertype=='oldeliver'}">
+					<div class="bdh_box c rc_list rcl_right dbinner_title">
+						<span class="bdhb_title">送货上门</span>
+						<!-- 编辑地址 -->
+						<a class="fr pw" ng-click="editaddr()" ng-show="delivertype=='oldeliver'"><i class="qx qx-pen fs_5 fc_o fr"></i></a>
+						<radio radiovalue='delivertype' truev="oldeliver"></radio>
+					</div>
+					<div class="dbinner_cnt pw">
+						<ul class="bdt_list c">
+							<li class="c"><i class="qx qx-location fs_6 fc_o fl"></i><span> 上门地址：</span><span class="fc_gray">{{address}}</span><a ng-click="editaddr()" class="btn btn_r" ng-if="!address">添加上门地址</a>
+								<input type="hidden" name="address" value="{{address}}" />
+							</li>
+							<li class="c"><i class="qx qx-phone fs_6 fc_o fl"></i><span> 联系电话：</span><span class="fc_gray">{{phone}}</span><a ng-click="editaddr()" class="btn btn_r" ng-if="!phone">添加联系电话</a>
+								<input type="hidden" name="phone" value="{{phone}}" />
+							</li>
+							<li class="c"><i class="qx qx-time fs_6 fc_o fl"></i><span> 送货时间：</span><span class="fc_gray">{{vm.ap.timetype+vm.clock.label||'即刻起送'}}</span>
+								<input type="hidden" name="delivertime" value="{{delivertime||'即刻起送'}}" />
+							</li>
+							<li class="c"><i class="fl qx qx-recharge fs_6 fc_o"></i><span> 送货费用：</span><span class="fc_gray">0元</span>
+							</li>
+						</ul>
+					</div>
+				</div>
+				<div class=" drawerbox_inner c" ng-class="{openinner:delivertype=='selfdeliver'}">
+					<div class="bdh_box c rc_list rcl_right dbinner_title">
+						<span class="bdhb_title">自行提货</span>
+						<radio radiovalue='delivertype' truev="selfdeliver"></radio>
+					</div>
+
+					<div class="dbinner_cnt pw">
+						<ul class="bdt_list c">
+							<li class="c"><i class="qx qx-location fs_6 fc_o fl"></i><span> 提货地址：</span><span class="fc_gray" ng-bind="selfDaddr"></span>
+							</li>
+							<li class="c"><i class="qx qx-phone fs_6 fc_o fl"></i><span> 联系电话：</span><span class="fc_gray" ng-bind="selfTel"></span>
+							</li>
+						</ul>
+					</div>
+
+				</div>
+			</div>
+		</div>
+		<!-- 支付方式 -->
+		<div class="drawerbox_outer openout">
+			<div class="dbout_header c">
+				<span class="fl dboh_title">选择支付方式</span>
+			</div>
+			<div class="dbout_cnt">
+				<div class="bdt_list">
+					<ul>
+						<li class="c pw rc_list rcl_right" ng-show="qxabled&&hasqxcard">
+							<span class="fl">在线支付</span>
+							<radio radiovalue='olpayType' truev="qxcardpay"></radio>
+						</li>
+						<li class="pw rc_list hide" ng-class="{block:!qxabled}">您有商品不支持使用区享卡支付</li>
+						<li class="pd hide" ng-class="{block:!hasqxcard}">您暂无区享卡或区享卡余额不足，您可联系门店购买或先<a class="btn btn_r mw">充值</a>
+						</li>
+						<li class="c pw rc_list rcl_right">
+							<span class="fl">第三方支付(暂只支持微信支付)</span>
+							<radio radiovalue='olpayType' truev="olpay"></radio>
+						</li>
+						<li class="c pw rc_list rcl_right">
+							<span class="fl">现金支付</span>
+							<radio radiovalue='olpayType' truev="cashpay"></radio>
+						</li>
+
+					</ul>
+				</div>
+			</div>
+		</div>
+		<div id="nav">
+			<div id="so_action">
+				<button ng-click="suborder()" ng-class="{btn_dis:!loadoff}" ng-disabled="!loadoff" class="fr btn_big btn btn_r">提交</button>
+			</div>
+		</div>
+
+		<!-- 修改地址弹窗模板 -->
+
+		<div id="modifyaddr" class="hide">
+			<div id="dform_list">
+				<form id="updateaddrinform" name="updateaddrinform">
+					<dl>
+						<dt><i class="qx qx-location fs_4 fc_o"></i> 上门地址</dt>
+						<dd>
+							<input name="addr" required type="text" id="df_addr" class="longtxt" placeholder="小区名+单元名+单元号" name="df_tel" id="df_addr" ng-model="address" />
+						</dd>
+					</dl>
+					<dl>
+						<dt><i class="qx qx-phone fs_4 fc_o"></i> 联系电话</dt>
+						<dd>
+							<input required="required" type="text" id="df_phone" class="longtxt" name="df_phone" id="df_phone" ng-model="phone" placeholder="手机号码" />
+						</dd>
+					</dl>
+					<dl>
+						<dt><i class="qx qx-time fs_4 fc_o"></i>送货时间</dt>
+						<dd>
+							<select class="shortxt" ng-model="vm.ap" id="df_timeap" ng-options="ap.timetype for ap in vm.timecontrol">
+								<option value="">-送货时段-</option>
+							</select>
+							<select class="shortxt" ng-if="vm.ap.clock" ng-model="vm.clock" id="df_timeclock " ng-options="clock.label for clock in vm.ap.clock">
+								<option value="">送货时间点</option>
+							</select>
+						</dd>
+					</dl>
+				</form>
+			</div>
+		</div>
+		<form action="order-detail.html" method="post">
+			<input type="hidden" value="{{orderid}}"/>
+		</form>
+		<div id="loading" ng-class="{hide:loadok}"></div>
+		<script src="../js/common/commservice.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../js/artDialog.source.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../js/iframeTools.source.js" type="text/javascript" charset="utf-8"></script>
+		<script type="text/javascript ">
+			var suborderApp = angular.module('suborderApp', ['app.service', 'ngTouch']);
+			var suborderController = suborderApp.controller('suborderController', ['$scope', '$timeout','$filter', '$http', 'orderact', 'qxcard', 'updateCart',
+				function($scope, $timeout,$filter, $http, orderact, qxcard, updateCart) {
+					$scope.olpayType = "qxcardpay"; //默认支付方式,区享卡支付?
+					$scope.delivertype = "selfdeliver"; //配送方式，默认送货上门
+					$scope.qxabled = $scope.hasqxcard = true; //商品可用区享卡，有区享卡
+					$scope.delivertime = [{
+						timetype: '上午',
+						clock: [{
+							label: '6点'
+						}, {
+							label: '7点'
+						}, {
+							label: '8点'
+						}, {
+							label: '9点'
+						}, {
+							label: '10点'
+						}, {
+							label: '11点'
+						}, {
+							label: '12点'
+						}]
+					}, {
+						timetype: '下午',
+						clock: [{
+							label: '13点'
+						}, {
+							label: '14点'
+						}, {
+							label: '15点'
+						}, {
+							label: '16点'
+						}, {
+							label: '17点'
+						}, {
+							label: '18点'
+						}, {
+							label: '19点'
+						}]
+					}];
+					$scope.vm = {};
+					$scope.vm.timecontrol = $scope.delivertime;
+					//商品列表
+					var usproid = $('#cartprolist').val().split(',');
+					if (!usproid.length) {
+						$timeout(function() {
+							artDialog.confirm('您尚未选购任何商品', function() {
+								window.location.href = '../index.html';
+							}, function() {
+								window.location.href = '../index.html';
+							});
+						}, 60);
+					};
+					//标签转换
+					$scope.transtags = function(o, i) {
+						return o & (1 << i);
+					};
+					//获取商品
+					updateCart.getproFcart().success(function(data) {
+						$scope.orderplist = [];
+						var oderprice = 0;
+						$scope.loadok=true;
+					//	$scope.loadoff = true;
+						angular.forEach(data.data, function(d) {
+							angular.forEach(usproid, function(b) {
+								if (b == d.product_id) {
+									$scope.orderplist.push(d);
+									var pprcount = d.product_price * 1 * d.product_amount;
+									if (d.wholesale_price) {
+										if (pprcount > d.wholesale_price.split('|')[0]) {
+											pprcount = pprcount - d.wholesale_price.split('|')[1]
+										}
+									}
+									//不支持区享卡
+									if ($scope.transtags(d.tags, 3)) {
+										$scope.qxabled = false;
+									}
+									oderprice += pprcount;
+								}
+							});
+						});
+						$scope.oderprice=$filter('number')(oderprice,2);
+						if(!$scope.orderplist.length){
+							artDialog.confirm('获取商品失败',function(){
+								window.location.href="../index.html"
+							},function(){
+								window.location.href="../index.html"
+							});
+							return;
+						};
+						$scope.loadoff = true;
+						//验证区享卡
+						qxcard.checkBalance($scope.oderprice).success(function(data) {
+							if (data.result_code == 0) { //成功
+								$scope.olpayType = "qxcardpay";
+							} else if (data.result_code == 1 || data.result_code == 2) { //无区享卡
+								$scope.olpayType = "olpay";
+								$scope.hasqxcard = false;
+							} else if (data.result_code == 3) { //满足条件但未设置区享卡密码
+								$scope.cardnopwd = true;
+							}
+						});
+					}).error(function() {
+						artDialog.confirm('获取数据出错', function() {
+							window.location.href = '../index.html';
+						});
+					});
+					//自提信息
+					$http({
+						method: 'get',
+						url: basepath + 'community/contact/?access_token=' + access_token
+					}).success(function(data) {
+						$scope.selfDaddr = data.data.community_addr;
+						$scope.selfTel = data.data.property_tel;
+					});
+					//获取用户地址联系信息
+					$http({
+						method: 'get',
+						url: basepath + 'user/info/?access_token=' + access_token
+					}).success(function(data) {
+						if(data.result_code=='0'){
+							$scope.delivertype = "oldeliver";
+							$scope.phone = data.data.phone;
+							$scope.address = data.data.communityName + data.data.floor + data.data.room;
+						}
+					});
+					//修改地址
+					$scope.editaddr = function() {
+						artDialog({
+							title: '配送信息',
+							content: document.getElementById("modifyaddr"),
+							width: '92%',
+							padding: '10px 10px 0',
+							ok: function() {
+								if(!$scope.address){
+									artDialog.alert('请输入上门地址');
+									return false;
+								}
+								if(!/^1\d{10}$/.test($scope.phone)||!$scope.phone){
+									artDialog.alert('请输入正确的手机号码');
+									return false;
+								}
+							},
+							cancel: function() {}
+						});
+					};
+					//提交
+					$scope.suborder = function() {
+						//配送时间
+						var dtime = $scope.getime();
+						console.log($scope.orderplist);
+						$scope.suborderdata = {
+							products: $scope.orderplist,
+							delivery_price: 0,
+							delivery_type: ($scope.delivertype == 'oldeliver' ? 2 : 1),
+							pay_type: ($scope.olpayType == 'cashpay' ? 1 : 2), //【付费类型 1线下 2线上】
+							delivery_time: $filter('date')(dtime,'yyyy-MM-dd HH:mm:ss'),
+							channel: '3',
+							pay_type_ext: 11 //【付费类型 11 现金 12 刷卡 13 混合 21 区享卡 22 支付宝 23 微信】
+						};
+						if ($scope.delivertype === 'oldeliver') {
+							if (!$scope.address) {
+								artDialog.prompt('<i class="qx qx-location fs_4 fc_o "></i>上门地址', function(v) {
+									$scope.$apply(function() {
+										$scope.address = v;
+									});
+								});
+								return;
+							}
+							if (!$scope.phone) {
+								artDialog.prompt('<i class="qx qx-location fs_4 fc_o "></i>联系电话', function(v) {
+									v=/^1\d{10}$/.test(v)?v:'';
+									$scope.$apply(function() {
+										$scope.phone = v;
+									});
+
+								});
+								return;
+							};
+							$scope.suborderdata.delivery_addr = $scope.address;
+							$scope.suborderdata.order_phone = $scope.phone;
+						};
+						if ($scope.olpayType === 'qxcardpay') {
+							if (!$scope.qxcardpwd) {//输入或设置密码
+								$scope.getcardpwd();
+								return;
+							}
+							$scope.suborderdata.qxcard_pwd = $scope.qxcardpwd;
+							$scope.suborderdata.pay_type_ext = '21';//区享卡支付
+						}
+						if ($scope.olpayType === 'olpay') {
+							$scope.suborderdata.pay_type_ext = '22';//微信支付
+						};
+						console.log($scope.suborderdata);
+						orderact.topay($scope.suborderdata).success(function(data) {
+							if (data.result_code == '0') {
+								artDialog.alert('提交订单成功' + data.data.order_serial);
+								console.log(data.data.paystr);
+								$scope.orderid=data.data.order_serial;
+								if ($scope.suborderdata.pay_type_ext == '23') {
+									artDialog.alert('调用微信支付');
+									return;
+								}
+								window.location.href="order-detail.html?orderid="+$scope.orderid;
+								//$('form').submit();
+							} else if (data.result_code == '9') {
+								$scope.qxcardpwd = '';
+								artDialog.alert(data.result_dec);
+							} else {
+								artDialog.alert(data.result_dec);
+							}
+						}).error(function(a, b, c, d) {
+							console.log(a + b);
+						})
+					};
+					//输入区享卡密码
+					$scope.getcardpwd = function() {
+						if (!$scope.cardnopwd) {
+							artDialog({
+								title: '请输入区享卡密码',
+								content: '<p>支付金额：<span class="fc_r fs_3 ">￥' + $scope.oderprice + '</span></p>' + thecard_inputpwd,
+								cancel: function() {},
+								padding: 20,
+								width: '92%',
+								ok: function() {
+									var paypwd = setoboxpwd(1);
+									$scope.qxcardpwd = paypwd;
+								}
+							});
+						} else { //未设置密码
+							artDialog({
+								title: '请先设置区享卡密码',
+								content: '请输入六位数字密码' + thecard_inputpwd,
+								padding: 20,
+								width: '92%',
+								cancel: function() {},
+								ok: function() {
+									var thepwd = setoboxpwd(1);
+									if (thepwd.length < 6) {
+										return;
+									} else {
+										artDialog({
+											title: '请再次输入区享卡密码',
+											padding: 20,
+											width: '92%',
+											content: '请再次输入六位数字密码' + thecard_inputpwd,
+											cancel: function() {},
+											ok: function() {
+												var thepwd2 = setoboxpwd(1);
+												if (thepwd != thepwd2) {
+													artDialog.alert('重复密码错误');
+													return;
+												}
+												//设置密码
+												var setpwd = qxcard.checkpwd(2, thepwd2);
+												setpwd.success(function(data) {
+													if (data.result_code == 0) {
+														artDialog.alert('密码设置成功');
+														$scope.qxcardpwd = thepwd2;
+													} else {
+														artDialog.alert(data.result_dec);
+													}
+												}).error(function(a, b, c, d) {
+													artDialog.alert('<span class="fc_r ">密码设置失败</span>')
+												});
+											}
+										})
+									}
+								}
+							})
+						}
+					};
+					//设置配送时间
+					$scope.getime = function() {
+						var curtime = new Date();
+						if ($scope.vm.ap) {
+							var hours = curtime.getHours();
+							var day = curtime.getDate();
+							if ($scope.vm.clock) {
+								var time = $scope.vm.clock.label;
+								time = parseInt(time);
+								if (time <= hours) {
+									curtime.setDate(day + 1);
+								} else {
+									curtime.setHours(time);
+									curtime.setMinutes(0);
+									curtime.setMilliseconds(0);
+								}
+								return curtime;
+							} else {
+								if (($scope.vm.ap.timetype == '上午' && (hours > 12))) {
+									curtime.setDate(day + 1);
+									curtime.setHours(6);
+									curtime.setMinutes(0);
+									curtime.setSeconds(0)
+								}
+								else if(($scope.vm.ap.timetype == '下午' && (hours < 13))){
+									curtime.setDate(day + 1);
+									curtime.setHours(13);
+									curtime.setMinutes(0);
+									curtime.setSeconds(0)
+								}
+								return curtime;
+							}
+						} else {
+							return curtime;
+						}
+					};
+				}
+			]);
+			var thecard_inputpwd = '<div id="enterpaypwd" class="pt"><input type="number" maxlength=6 oninput="setoboxpwd(0)" autofocus="autofocus" autocomplete="off" autofocus="autofocus"/><ul><li><span>．</span></li><li><span>．</span></li><li><span>．</span></li><li><span>．</span></li><li><span>．</span></li><li><span>．</span></li></div>';
+
+			function setoboxpwd(t) {
+				var pwd = $("#enterpaypwd input ").val();
+				pwd = pwd.substring(0, 6);
+				$("#enterpaypwd input ").val(parseInt(pwd))
+				if (t) {
+					return pwd;
+				}
+				$("#enterpaypwd li ").each(function(i, e) {
+					$(e).removeClass();
+					if (i < pwd.length) {
+						$(e).addClass('cur');
+					}
+				});
+			}
+		</script>
+	</body>
+
+</html>

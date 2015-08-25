@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+
+	<head>
+		<meta charset="utf-8">
+		<title>我的订单</title>
+		<meta name="apple-mobile-web-app-capable" content="yes">
+		<meta name="format-detection" content="telephone=no, email=no">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+		<link rel="stylesheet" type="text/css" href="../css/qxv3.css" />
+		<link rel="stylesheet" type="text/css" href="../css/dialog.css" />
+		<script type="text/javascript">
+			var access_token = "fb735d44f4b8572da52648564312f17a05339490-1480";
+		</script>
+		<script src="../js/jquery.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../js/angular.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../js/angular-touch.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../js/common/commservice.js" type="text/javascript" charset="utf-8"></script>
+	</head>
+
+	<body class="navbtm" ng-app="odlistApp" ng-controller="odlistController">
+		<div class="tab c tab-c5" ng-init="tab=1">
+			<a ng-click="tab=1" ng-class="{cur:tab==1}"><span>全部</span></a>
+			<a ng-click="tab=2" ng-class="{cur:tab==2}"><span>待支付<i ng-if="ordercount.toPay_count!='0'" ng-bind="ordercount.toPay_count"></i></span></a>
+			<a ng-click="tab=3" ng-class="{cur:tab==3}"><span>未到货<i ng-if="ordercount.notArrived_count!='0'" ng-bind="ordercount.notArrived_count"></i></span></a>
+			<a ng-click="tab=4" ng-class="{cur:tab==4}"><span>待收货<i ng-if="ordercount.delivered_count!='0'" ng-bind="ordercount.delivered_count"></i></span></a>
+			<a ng-click="tab=5" ng-class="{cur:tab==5}"><span>已完成</span></a>
+		</div>
+		<div class="ol_wrap">
+			<orderinfo ng-repeat="order in orderlist" order="order"></orderinfo>
+			<div class="pd mh txt-c fc_gray hide" ng-class="{block:!orderlist.length&&loadok}"><i class="qx qx-roundclose fs_6"></i>
+	<br/>暂无订单</div>
+		</div>
+		<!-- 底部导航 -->
+		<div id="nav" class="c">
+			<a href="../index.html"><i class="qx qx-index "></i><i class="qx nav-fill qx-indexfill "></i><span>首页</span></a>
+			<a href="../service.html"><i class="qx qx-survice "></i><i class="qx nav-fill qx-survicefill "></i><span>服务</span></a>
+			<a href="../bag.html"><i class="qx qx-bag "></i><i class="qx nav-fill qx-bagfill "></i><span>购物袋</span></a>
+			<a href="../order/orderlist.html" class="cur"><i class="qx qx-order"></i><i class="qx nav-fill qx-orderfill"></i><span>订单</span></a>
+			<a href="../user.html"><i class="qx qx-user "></i><i class="qx nav-fill qx-userfill "></i><span>我的</span></a>
+		</div>
+		<div id="loading" ng-class="{hide:loadok}"></div>
+		<script src="../js/artDialog.source.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../js/iframeTools.source.js" type="text/javascript" charset="utf-8"></script>
+		<script type="text/javascript">
+			var odlistApp = angular.module('odlistApp', ['app.service']);
+			var odlistController = odlistApp.controller('odlistController', ['$scope', '$http', 'orderact',
+				function($scope, $http, orderact) {
+					$scope.$watch('tab', function() {
+						$scope.loadok = false;
+						orderact.orderlist($scope.tab, 100).success(function(data) {
+							$scope.loadok = true;
+							if (data.result_code != '0') {
+								artDialog.alert(data.result_dec);
+							} else {
+								$scope.ordercount = data.data.count;
+								$scope.orderlist = data.data.orders;
+							}
+						}).error(function() {
+							$scope.loadok = true;
+							artDialog.alert('订单获取异常');
+						});
+					});
+				}
+			]);
+		</script>
+	</body>
+
+</html>

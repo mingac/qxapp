@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+
+	<head>
+		<meta charset="utf-8">
+		<title>首页</title>
+		<meta proname="apple-mobile-web-app-capable" content="yes">
+		<meta proname="format-detection" content="telephone=no, email=no">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+		<link rel="stylesheet" type="text/css" href="css/qxv3.css" />
+		<link rel="stylesheet" type="text/css" href="css/dialog.css" />
+		<script type="text/javascript">
+			var access_token = "fb735d44f4b8572da52648564312f17a05339490-1480";
+		</script>
+		<script src="js/jquery.js" type="text/javascript" charset="utf-8"></script>
+		<script src="js/angular.js" type="text/javascript" charset="utf-8"></script>
+		<script src="js/angular-touch.js" type="text/javascript" charset="utf-8"></script>
+	</head>
+
+	<body class="navbtm" ng-app="indexApp" ng-controller="MainController">
+		<div id="header">
+			<a class="header_title hide" ng-class="{block:area_name}"><i class="qx qx-location fs_4"></i>{{area_name}}</a>
+			<a href="search.html" class="fr"><i class="qx qx-search"></i></a>
+		</div>
+		<div id="top_msglist" ng-class="{msg_smore:openmsg}" ng-if="ad.length">
+			<div id="msg_overlay" ng-click="tad()"></div>
+			<div id="msg_list">
+				<dl>
+					<dt ng-repeat="ad in ad" ng-if="$index==0" data-index="$index">
+						<a ng-href="{{ad.ad_url}}" ng-bind="ad.ad_name"></a><i class="qx fr qx-unfold" ng-click="tad()"></i>
+					</dt>
+					<dd ng-repeat="ad in ad" ng-if="$index!=0" data-index="$index">
+						<a ng-href="{{ad.ad_url}}" ng-bind="ad.ad_name"></a>
+					</dd>
+				</dl>
+			</div>
+		</div>
+
+		<!-- 主商品列表 -->
+		<div id="index_prolist" class="c">
+			<div id="pl_nav">
+				<ul>
+					<!-- 类别导航列表 -->
+					<li ng-repeat="nav in navlist" id="nav{{nav.service_id}}" ng-click="togglenav(nav.service_id)" ng-class="{cur:nav.service_id==navcur_id}" ng-bind='nav.service_name'>
+					</li>
+				</ul>
+			</div>
+			<div id="pl_content">
+				<div id="prolist_wrap">
+					<!-- 首页商品列表 -->
+					<div class="pd txt-c mt" id="loadprok">
+						<img src="images/loading.gif" class="mt" alt="加载中..." />
+					</div>
+					<prolist plst="prolist" navcur="{{navcur_id}}"></prolist>
+				</div>
+			</div>
+		</div>
+		<!-- 购物车遮罩 -->
+		<div id="cart_overlay" ng-click="is_cart_showdetail=!is_cart_showdetail" ng-show="is_cart_showdetail"></div>
+		<!-- 购物车 -->
+		<div id="index_cart_wrap" class="cart" ng-class="{havepro:cart_propronum}">
+			<div id="cart_content">
+				<div id="proinfo_shide" ng-show="is_cart_showdetail">
+					<div id="cart_nothing" ng-hide="cart_propronum>0">购物车是空的</div>
+					<!-- 购物车列表 -->
+					<cartprolist needel="true" plist="prolist" pronum="{{proIncartPropronum}}" ng-show="cart_propronum"></cartprolist>
+				</div>
+				<!-- 信息，操作 -->
+				<div id="cart_act" class="c">
+					<div class="icon-cart fl" ng-class="{cart_show:is_cart_showdetail}" ng-click="is_cart_showdetail=!is_cart_showdetail">
+						<i class="qx qx-cart" ng-show="!is_cart_showdetail"></i>
+						<i class="qx qx-close" ng-showw="is_cart_showdetail"></i>
+						<span class="num" ng-bind="cart_propronum"></span>
+					</div>
+					<div class="cart_price fl" ng-show="cart_propronum">共计<span ng-bind="cart_count|currency:'￥'"></span>
+					</div>
+					<button class="fr cart_subgo" ng-click="gosubpro()" ng-disabled="!cart_propronum">结算</button>
+				</div>
+			</div>
+
+		</div>
+		<!-- 底部导航 -->
+		<div id="nav" class="c">
+			<a href="index.html" class="cur"><i class="qx qx-index "></i><i class="qx nav-fill qx-indexfill "></i><span>首页</span></a>
+			<a href="service.html"><i class="qx qx-survice "></i><i class="qx nav-fill qx-survicefill "></i><span>服务</span></a>
+			<a href="bag.html"><i class="qx qx-bag "></i><i class="qx nav-fill qx-bagfill "></i><span>购物袋</span></a>
+			<a href="order/orderlist.html"><i class="qx qx-order "></i><i class="qx nav-fill qx-orderfill "></i><span>订单</span></a>
+			<a href="user.html"><i class="qx qx-user "></i><i class="qx nav-fill qx-userfill "></i><span>我的</span></a>
+		</div>
+		<!-- 提交订单 -->
+		<form action="order/suborder.html" class="hide" method="get">
+			<input type="hidden" name="cartpro" id="proidlist" />
+		</form>
+		<script src="js/common/commservice.js" type="text/javascript" charset="utf-8"></script>
+		<script src="js/artDialog.source.js" type="text/javascript" charset="utf-8"></script>
+		<script src="js/iframeTools.source.js" type="text/javascript" charset="utf-8"></script>
+		<script type="text/javascript">
+			var indexApp = angular.module('indexApp', ['app.service']);
+			indexApp.run(function($rootScope) {
+				$rootScope.cart_propronum = 0; //默认购物车没商品
+				$rootScope.cart_count = 0; //默认金额0
+				$rootScope.is_cart_showdetail = false; //默认不显示购物车里商品，点击图标显示
+				$rootScope.openmsg = false; //信息开关
+				$rootScope.navcur_id = 0; //当前被选择的类别
+			});
+			var MainController = indexApp.controller('MainController', ['$scope', '$http', 'updateCart',
+				function($scope, $http, updateCart) {
+					$scope.proIncartPropronum = 0; //购物车中商品类别数量
+					//商品类别
+					$http({
+						method: 'get',
+						url: basepath + 'product/tlist3/?access_token=' + access_token
+					}).success(function(data) {
+						$scope.navlist = data.data;
+						$scope.navcur_id = $scope.navcur_id ? $scope.navcur_id : $scope.navlist[0].service_id
+					});
+					$scope.tad=function(){
+						$scope.openmsg=!$scope.openmsg
+					};
+					//切换导航
+					$scope.togglenav = function(navid) {
+						$scope.navcur_id = navid;
+					};
+					//小区信息
+					$http({
+						method: 'get',
+						url: basepath + 'community/contact/?access_token=' + access_token
+					}).success(function(data) {
+						$scope.area_name = data.data.community_nanme;
+					});
+					//广告
+					$http({
+						method:'get',
+						url:basepath+'service/ad3/?access_token='+access_token+'&type=1'
+					}).success(function(data){
+						if(data.result_dec=='OK'){
+							$scope.ad=data.data;
+						}
+					});
+					//所有商品列表
+					$http({
+						method: 'get',
+						url: basepath + 'product/list3/?access_token=' + access_token
+					}).success(function(data) {
+						$scope.prolist = data.data;
+						$('#loadprok').slideUp();
+					});
+					//监视购物车内商品类别数量
+					$scope.$watch('prolist', function(n, o, scope) {
+						$scope.proIncartPropronum = 0;
+						$scope.cart_propronum = 0;
+						$scope.cart_count = 0;
+						for (i in scope.prolist) {
+							if ($scope.prolist[i].product_amount * 1 > 0) {
+								$scope.proIncartPropronum++;
+								$scope.cart_propronum = $scope.cart_propronum + $scope.prolist[i].product_amount * 1;
+								$scope.cart_count = $scope.cart_count + $scope.prolist[i].product_amount * 1 * $scope.prolist[i].product_price;
+							}
+						}
+					}, true);
+					$scope.gosubpro = function() {
+						//获取购物车列表
+						$http({
+							method: 'get',
+							url: basepath + 'cart/list3/?access_token=' + access_token
+
+						}).success(function(data) {
+							if (data.result_dec == 'OK') {
+								var clist = data.data;
+								//称重商品跳转到购物车
+								for (var i = 0; i < clist.length; i++) {
+									if ('2'==clist[i].type) {
+										window.location.href='bag.html';
+										return;
+									}
+								};
+								//普通商品提交
+								var proidlist=[];
+								angular.forEach($scope.prolist,function(data){
+									if(data.product_amount!='0'){
+										proidlist.push(data.product_id);
+									}
+								});
+								$('#proidlist').val(proidlist.join(','));
+								console.log(proidlist.join(','));
+								setTimeout(function(){
+									$('form').submit();
+								},150)
+							} else {
+								artDialog.alert(data.result_dec)
+								console.log(data.result_dec);
+							}
+						}).error(function(a, b, c, d) {
+							console.log(b);
+						})
+					}
+				}
+			]);
+			(function() {
+				var wh = $(window).height();
+				$("#pl_content,#pl_nav").css('height', (wh - 138-$('#top_msglist').height()))
+			})()
+		</script>
+	</body>
+
+</html>
