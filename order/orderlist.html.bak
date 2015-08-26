@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en">
+
+	<head>
+		<meta charset="utf-8">
+		<title>我的订单</title>
+		<meta name="apple-mobile-web-app-capable" content="yes">
+		<meta name="format-detection" content="telephone=no, email=no">
+		<meta http-equiv="Pragma" content="no-cache">
+		<meta http-equiv="Cache-Control" content="no-cache">
+		<meta http-equiv="Expires" content="0">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+		<link rel="stylesheet" type="text/css" href="../css/qxv3.css" />
+		<link rel="stylesheet" type="text/css" href="../css/dialog.css" />
+		<script type="text/javascript">
+			var access_token = "fb735d44f4b8572da52648564312f17a05339490-1480";
+		</script>
+		<script src="../js/jquery.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../js/angular.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../js/angular-touch.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../js/common/commservice.js" type="text/javascript" charset="utf-8"></script>
+	</head>
+
+	<body class="navbtm" ng-app="odlistApp" ng-controller="odlistController">
+		<div class="tab c tab-c5" ng-init="tab=1">
+			<a ng-click="tab=1" class="cur"><span>全部</span></a>
+			<a ng-click="tab=2"><span>待支付<i ng-if="ordercount.toPay_count!='0'" ng-bind="ordercount.toPay_count"></i></span></a>
+			<a ng-click="tab=3"><span>未到货<i ng-if="ordercount.notArrived_count!='0'" ng-bind="ordercount.notArrived_count"></i></span></a>
+			<a ng-click="tab=4"><span>待收货<i ng-if="ordercount.delivered_count!='0'" ng-bind="ordercount.delivered_count"></i></span></a>
+			<a ng-click="tab=5"><span>已完成</span></a>
+		</div>
+		<div class="ol_wrap" ng-if="tab==1">
+			<orderinfo ng-repeat="order in orderlist" order="order"></orderinfo>
+			<!-- 订单列表循环，日期
+			<div class="drawerbox_outer openout">
+				<div class="dbout_header c">
+					<span class="fl dboh_title">今天</span>共2单
+					<span class="fr box_arrow"><i class="qx qx-unfold"></i></span>
+				</div>
+				<div class="dbout_cnt">
+					<!-- 消息 -->
+					<div class="ordermsg_list ph bg_gray">
+						<div class=" bg_pink">
+							<ul class="bdt_list">
+								<li class="c pw">
+									<span class="fl omsg_name">您有新的快递已到服务站</span>
+									<i class="qx qx-roundclose fr fs_5 fc_gray ml"></i>
+									<a href="" class="btn btn_mg btn_msg_r fr btn_small">将快递一起送</a>
+								</li>
+								<li class="c pw">
+									<span class="fl omsg_name">干洗衣物已到服务站</span>
+									<i class="qx qx-roundclose fr fs_5 fc_gray ml"></i>
+									<a href="" class="btn btn_mg btn_msg_r fr btn_small">将衣服一起送</a>
+								</li>
+								<li class="c pw">
+									<span class="fl omsg_name">您有新的快递已到服务站</span>
+									<i class="qx qx-roundclose fr fs_5 fc_gray ml"></i>
+								</li>
+							</ul>
+						</div>
+					</div>
+
+					<!-- 订单列表 -->
+					<div class="orderlist">
+						<div class="order_title"><span class="odt_name"><i class="qx qx-time"></i>2015-12-12 10:20</span>
+							<span class="fr btn btn_mg btn_msg_r">未到货</span>
+						</div>
+						<div class="order_cnt">
+							<!-- 订单商品列表 -->
+							<div class="cart bg_gray">
+								<cartprolist plist="cartprolist" pronum="{{cartprolist.length}}"></cartprolist>
+							</div>
+							<!-- 订单信息 -->
+							<ul class="bdt_list">
+								<li class="pw"><a onclick="orderpayinfo(1242)" class="c block">支付总额：<span class="fc_gray">￥12323.03</span>
+								<i class="qx fr qx-right"></i></a>
+								</li>
+								<li class="pw c">
+									<a onclick="qxcardpay(124323)" class="c block">支付方式：<span class="fc_gray">区享卡支付</span>
+								<i class="qx fr qx-right"></i></a>
+								</li>
+							</ul>
+							<div class="drawerbox_inner openinner">
+								<div class="dbinner_title"><span class="bdhb_title">配送方式：<span class="fr_gray">送货上门</span></span><span class="box_arrow"><i class="qx qx-unfold"></i></span><span class="fr pw fc_r"><i class="qx qx-pen"></i>修改</span>
+								</div>
+								<div class="dbinner_cnt pw">
+									<ul class="bdt_list c">
+										<li><i class="qx qx-location fs_6 fc_o"></i><span> 上门地址：</span><span class="fc_gray ">1111111123213123</span>
+										</li>
+										<li><i class="qx qx-phone fs_6 fc_o"></i><span> 联系电话：</span><span class="fc_gray">14123123123</span>
+										</li>
+										<li><i class="qx qx-time fs_6 fc_o"></i><span> 送货时间：</span><span class="fc_gray">下午6点</span>
+										</li>
+										<li><i class=" qx qx-recharge fs_6 fc_o"></i><span> 送货费用：</span><span class="fc_gray">0元</span>
+										</li>
+									</ul>
+								</div>
+							</div>
+						</div>
+					</div>
+					<!--  -->
+					<div class="bg_gray pt"></div>
+
+					<div class="orderlist">
+						<div class="order_title"><span class="odt_name"><i class="qx qx-time"></i>2015-12-12 10:20</span>
+							<span class="fr btn btn_mg btn_msg_gr">配送中</span>
+						</div>
+						<div class="order_cnt">
+							<!-- 订单商品列表 -->
+							<div class="cart bg_gray">
+								<cartprolist plist="cartprolist" pronum="{{cartprolist.length}}"></cartprolist>
+							</div>
+							<!-- 订单信息 -->
+							<ul class="bdt_list">
+								<li class="pw"><a onclick="orderpayinfo(3434)" class="c block">支付总额：<span class="fc_gray">￥12323.03</span>
+								<i class="qx fr qx-right"></i></a>
+								</li>
+								<li class="pw c">支付方式：<span class="fc_gray">现金支付</span>
+								</li>
+							</ul>
+							<div class="drawerbox_inner">
+								<div class="dbinner_title"><span class="bdhb_title">配送方式：<span class="fr_gray">送货上门</span></span><span class="box_arrow"><i class="qx qx-unfold"></i></span>
+								</div>
+								<div class="dbinner_cnt pw">
+									<ul class="bdt_list c">
+										<li><i class="qx qx-location fs_6 fc_o"></i><span> 上门地址：</span><span class="fc_gray ">1111111123213123</span>
+										</li>
+										<li><i class="qx qx-phone fs_6 fc_o"></i><span> 联系电话：</span><span class="fc_gray">14123123123</span>
+										</li>
+										<li><i class="qx qx-time fs_6 fc_o"></i><span> 送货时间：</span><span class="fc_gray">下午6点</span>
+										</li>
+										<li><i class="qx qx-recharge fs_6 fc_o"></i><span> 送货费用：</span><span class="fc_gray">0元</span>
+										</li>
+									</ul>
+								</div>
+							</div>
+
+							<div class="drawerbox_inner openinner">
+								<div class="dbinner_title"><span class="bdhb_title">配送信息：<span class="fr_gray">配送中</span></span><span class="box_arrow"><i class="qx qx-unfold"></i></span>
+								</div>
+								<div class="dbinner_cnt pw">
+									<ul class="bdt_list c">
+
+										<li><span class="pt"><i class="qx qx-my fs_6 fc_o"></i> 配送人员：</span>
+											<span class="usericon"><span><img src="../images/pro1.png"></span></span>
+											<a class="ph fs_3" href="tel:13322222222"><i class="qx qx-telephone fs_7 fc_gr"></i>呼叫</a>
+											<a class="pd fs_3"><i class="qx qx-survice fc_o fs_7"></i>20</a>
+
+										</li>
+										<li><i class="qx qx-time fs_6 fc_o"></i><span> 开始配送时间：</span><span class="fc_gray">2015-12-12 12:00</span>
+										</li>
+										<li><i class="qx qx-time fs_6 fc_o"></i><span> 配送完成时间：</span><span class="fc_gray">2015-12-12 12:00</span>
+										</li>
+									</ul>
+								</div>
+							</div>
+
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- 2 -->
+			<div class="drawerbox_outer openout">
+				<div class="dbout_header c">
+					<span class="fl dboh_title">2015-12-12</span>共1单
+					<span class="fr box_arrow"><i class="qx qx-unfold"></i></span>
+				</div>
+				<div class="dbout_cnt">
+					<!-- 订单列表 -->
+					<div class="orderlist">
+						<div class="order_title"><span class="odt_name"><i class="qx qx-time"></i>2015-12-12 10:20</span>
+							<span class="fr fc_gray">完成时间：2015-12-12 12:12</span>
+						</div>
+						<div class="order_cnt">
+							<!-- 订单商品列表 -->
+							<div class="cart bg_gray">
+								<cartprolist plist="cartprolist" pronum="{{cartprolist.length}}"></cartprolist>
+							</div>
+							<!-- 订单信息 -->
+							<ul class="bdt_list">
+								<li class="pw"><a onclick="orderpayinfo(534)" class="c block">支付总额：<span class="fc_gray">￥12323.03</span>
+								<i class="qx fr qx-right"></i></a>
+								</li>
+								<li class="pw c">
+									<a class="c block" onclick="qxcardpay(124323)">
+								支付方式：<span class="fc_gray">区享卡支付</span>
+								<span class="fr"><i class="qx qx-right"></i></span></a>
+								</li>
+							</ul>
+							<div class="drawerbox_inner openinner">
+								<div class="dbinner_title"><span class="bdhb_title">配送方式：<span class="fr_gray">送货上门</span></span><span class="box_arrow"><i class="qx qx-unfold"></i></span>
+								</div>
+								<div class="dbinner_cnt pw">
+									<ul class="bdt_list c">
+										<li><i class="qx qx-location fs_6 fc_o"></i><span> 上门地址：</span><span class="fc_gray ">1111111123213123</span>
+										</li>
+										<li><i class="qx qx-phone fs_6 fc_o"></i><span> 联系电话：</span><span class="fc_gray">14123123123</span>
+										</li>
+										<li><i class="qx qx-time fs_6 fc_o"></i><span> 送货时间：</span><span class="fc_gray">下午6点</span>
+										</li>
+										<li><i class=" qx qx-recharge fs_6 fc_o"></i><span> 送货费用：</span><span class="fc_gray">0元</span>
+										</li>
+									</ul>
+								</div>
+							</div>
+						</div>
+					</div>
+					<!--  -->
+				</div>
+			</div>
+
+			<!-- 3 -->
+			<div class="drawerbox_outer openout">
+				<div class="dbout_header c">
+					<span class="fl dboh_title">2015-12-12</span>共1单
+					<span class="fr box_arrow"><i class="qx qx-unfold"></i></span>
+				</div>
+				<div class="dbout_cnt">
+					<!-- 订单列表 -->
+					<div class="orderlist">
+						<div class="order_title"><span class="odt_name"><i class="qx qx-time"></i>2015-12-12 10:20</span>
+							<span class="fr"><a href="" class="btn btn_g">取消订单</a>　<a href="" class="btn btn_r">立即支付</a></span>
+						</div>
+						<div class="order_cnt">
+							<!-- 订单商品列表 -->
+							<div class="cart bg_gray">
+								<cartprolist plist="cartprolist" pronum="{{cartprolist.length}}"></cartprolist>
+							</div>
+							<!-- 订单信息 -->
+							<ul class="bdt_list">
+								<li class="pw c">
+									<a href="" class="c">支付总额：<span class="fc_gray">￥12323.03</span>
+								<i class="qx fr qx-right"></i></a>
+								</li>
+								<li class="pw c">
+									支付方式：<span class="fc_gray">现金支付</span>
+								</li>
+							</ul>
+							<div class="drawerbox_inner openinner">
+								<div class="dbinner_title"><span class="bdhb_title">配送方式：<span class="fr_gray">送货上门</span></span><span class="box_arrow"><i class="qx qx-unfold"></i></span>
+								</div>
+								<div class="dbinner_cnt pw">
+									<ul class="bdt_list c">
+										<li><i class="qx qx-location fs_6 fc_o"></i><span> 上门地址：</span><span class="fc_gray ">1111111123213123</span>
+										</li>
+										<li><i class="qx qx-phone fs_6 fc_o"></i><span> 联系电话：</span><span class="fc_gray">14123123123</span>
+										</li>
+										<li><i class="qx qx-time fs_6 fc_o"></i><span> 送货时间：</span><span class="fc_gray">下午6点</span>
+										</li>
+										<li><i class=" qx qx-recharge fs_6 fc_o"></i><span> 送货费用：</span><span class="fc_gray">0元</span>
+										</li>
+									</ul>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>-->
+		</div>
+		<div class="ol_wrap" ng-if="tab==2">待支付</div>
+		<div class="ol_wrap" ng-if="tab==3">未到货</div>
+		<div class="ol_wrap" ng-if="tab==4">待收货</div>
+		<div class="ol_wrap" ng-if="tab==5">已完成</div>
+
+		<!-- 底部导航 -->
+		<div id="nav" class="c">
+			<a href="../index.html"><i class="qx qx-index "></i><i class="qx nav-fill qx-indexfill "></i><span>首页</span></a>
+			<a href="../service.html"><i class="qx qx-survice "></i><i class="qx nav-fill qx-survicefill "></i><span>服务</span></a>
+			<a href="../bag.html"><i class="qx qx-bag "></i><i class="qx nav-fill qx-bagfill "></i><span>购物袋</span></a>
+			<a href="../order/orderlist.html" class="cur"><i class="qx qx-order"></i><i class="qx nav-fill qx-orderfill"></i><span>订单</span></a>
+			<a href="../user.html"><i class="qx qx-user "></i><i class="qx nav-fill qx-userfill "></i><span>我的</span></a>
+		</div>
+		<!--区享卡支付详情  -->
+		<script type="text/html" id="cardpayinfo">
+			<div class="fs_2">
+				<p>区享卡支付：<span class="fc_r">￥{{orderprice}}</span>
+					<p>
+						<table class="table-bd txt-c">
+							<tr>
+								<th>区享卡号</th>
+								<th>当前余额</th>
+								<th>本次支付</th>
+								<th>可用余额</th>
+							</tr>
+							{{each list as value index}}
+							<tr>
+								<td>{{value.cardid}}</td>
+								<td>{{value.curmoney}}</td>
+								<td>{{value.payprice}}</td>
+								<td><span class="fc_r">{{value.balance}}</span>元</td>
+							</tr>
+							{{/each}}
+						</table>
+			</div>
+		</script>
+		<!-- 支付总额详情 -->
+		<script type="text/html" id="orderpayinfo">
+			<div class="fs_2">
+				<table class="table-bd txt-c">
+					{{each list as value index}}
+					<tr>
+						<td class="txt-l">{{value.proname}}*{{value.pronum}}</td>
+						<td><span class="fc_r">{{value.proprice}}</span>元</td>
+					</tr>
+					{{/each}}
+				</table>
+			</div>
+		</script>
+		<script src="../js/cartPscroll.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../js/artDialog.source.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../js/iframeTools.source.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../js/template.js" type="text/javascript" charset="utf-8"></script>
+		<script type="text/javascript">
+			var odlistApp = angular.module('odlistApp', ['app.service']);
+			var odlistController = odlistApp.controller('odlistController', ['$scope', '$http','orderact',
+				function($scope, $http,orderact) {
+					orderact.orderlist().success(function(data){
+						if(data.result_code!='0'){
+							artDialog.alert('订单获取异常');
+						}else{
+							$scope.ordercount=data.data.count;
+							$scope.orderlist=data.data.orders;
+						}
+					}).error(function(){});
+
+				}
+			]);
+			$(function() {
+					$('.dbout_header .box_arrow').on('click', function() {
+						$(this).parents('.drawerbox_outer').toggleClass('openout')
+					});
+					$('.dbinner_title .box_arrow').on('click', function() {
+						$(this).parents('.drawerbox_inner').toggleClass('openinner')
+					})
+				})
+				//区享卡支付详情
+
+			function qxcardpay(orderid, orderprice) {
+					$.ajax({
+						type: "get ",
+						url: "",
+						success: function(data) {
+							data = {
+								orderprice: 124123,
+								list: [{
+									cardid: 124122232,
+									curmoney: 124,
+									payprice: 12,
+									balance: 0,
+								}, {
+									cardid: 1212321123,
+									curmoney: 1124,
+									payprice: 1232,
+									balance: 20,
+								}]
+							};
+							artDialog({
+								title: '区享卡支付详情',
+								padding: '20px 20px 10px 20px',
+								width: '90%',
+								content: template('cardpayinfo', data)
+							})
+						}
+					});
+				}
+				//订单支付总额详情
+
+			function orderpayinfo(orderid) {
+				console.log("1");
+				$.ajax({
+					type: "get",
+					url: "",
+					success: function(data) {
+						data = {
+							list: [{
+								proname: '荔枝大桃子111',
+								pronum: 12,
+								proprice: 1423,
+							}, {
+								proname: '荔枝大桃子222',
+								pronum: 12,
+								proprice: 1423,
+							}]
+						};
+						artDialog({
+							title: '订单支付详情',
+							padding: '10px',
+							width: '90%',
+							content: template('orderpayinfo', data)
+						})
+					}
+				});
+			}
+		</script>
+	</body>
+
+</html>
